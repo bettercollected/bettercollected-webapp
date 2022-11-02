@@ -31,6 +31,8 @@ const environments = {
     IS_CUSTOM_DOMAIN: (publicRuntimeConfig.IS_CUSTOM_DOMAIN && (publicRuntimeConfig.IS_CUSTOM_DOMAIN === 'true' || publicRuntimeConfig.IS_CUSTOM_DOMAIN === true)) ?? false,
     CUSTOM_DOMAIN: publicRuntimeConfig.CUSTOM_DOMAIN,
     CUSTOM_DOMAIN_JSON: publicRuntimeConfig.CUSTOM_DOMAIN_JSON,
+    GOOGLE_CREDENTIALS: publicRuntimeConfig.GOOGLE_CREDENTIALS,
+    GOOGLE_COMPANY_EMAIL_ADDRESS: publicRuntimeConfig.GOOGLE_COMPANY_EMAIL_ADDRESS,
 
     // internal configs
     IS_IN_PRODUCTION_MODE

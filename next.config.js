@@ -50,7 +50,9 @@ const nextConfig = {
         // Custom Domain Variables
         IS_CUSTOM_DOMAIN: process.env.IS_CUSTOM_DOMAIN || false,
         CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN,
-        CUSTOM_DOMAIN_JSON: process.env.CUSTOM_DOMAIN_JSON
+        CUSTOM_DOMAIN_JSON: process.env.CUSTOM_DOMAIN_JSON,
+        GOOGLE_CREDENTIALS: process.env.GOOGLE_CREDENTIALS,
+        GOOGLE_COMPANY_EMAIL_ADDRESS: process.env.GOOGLE_COMPANY_EMAIL_ADDRESS
     }
 };
 

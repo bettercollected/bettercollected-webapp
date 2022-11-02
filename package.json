@@ -29,6 +29,7 @@
     "dayjs": "^1.11.5",
     "file-type": "^16.5.3",
     "framer-motion": "^7.2.1",
+    "googleapis": "^109.0.0",
     "jotai": "^1.8.2",
     "js-cookie": "^3.0.1",
     "little-state-machine": "^4.6.0",
