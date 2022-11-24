@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { IconButton, InputAdornment } from '@mui/material';
 import TextField from '@mui/material/TextField';
+import { useDispatch, useSelector } from 'react-redux';
 
 import EmptyTray from '@app/assets/svgs/empty-tray.svg';
 import { SearchIcon } from '@app/components/icons/search';
 import { ShareIcon } from '@app/components/icons/share-icon';
 import { MODAL_VIEW, useModal } from '@app/components/modal-views/context';
 import Button from '@app/components/ui/button';
+import ButtonRenderer from '@app/components/ui/ButtonRenderer';
 import FullScreenLoader from '@app/components/ui/fullscreen-loader';
 import Hamburger from '@app/components/ui/hamburger';
 import Image from '@app/components/ui/image';
@@ -16,10 +18,13 @@ import ActiveLink from '@app/components/ui/links/active-link';
 import MarkdownText from '@app/components/ui/markdown-text';
 import MuiSnackbar from '@app/components/ui/mui-snackbar';
 import environments from '@app/configs/environments';
+import Tabs from '@app/components/ui/tabs';
 import ContentLayout from '@app/layouts/_content-layout';
 import { useCopyToClipboard } from '@app/lib/hooks/use-copy-to-clipboard';
 import { CompanyJsonDto } from '@app/models/dtos/customDomain';
 import { GoogleFormDto } from '@app/models/dtos/googleForm';
+import mysubmission, { mySubmissionActions } from '@app/store/counter/mysubmission';
+import { useAppSelector } from '@app/store/hooks';
 import { toEndDottedStr } from '@app/utils/stringUtils';
 
 const StyledTextField = styled.div`
@@ -40,7 +45,17 @@ interface IDashboardContainer {
 }
 
 export default function DashboardContainer({ companyJson }: IDashboardContainer) {
+    const dispatch = useDispatch();
+    const isForm = useAppSelector((state) => state.mySubmission.isForm);
+    const ismysubmission = useAppSelector((state) => state.mySubmission.isMysubmission);
+    const formhandler = () => {
+        dispatch(mySubmissionActions.formHandler());
+    };
+    const mysubmissionhandler = () => {
+        dispatch(mySubmissionActions.mysubmissionHandler());
+    };
     const [searchText, setSearchText] = useState('');
+    // const [isMySubmission, setisMySubmission] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [forms, setForms] = useState<Array<GoogleFormDto> | null>(null);
 
@@ -52,6 +67,7 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
     const handleSearch = (event: any) => {
         setSearchText(event.target.value.toLowerCase());
     };
+    console.log(isForm);
 
     useEffect(() => {
         if (!!companyJson) {
@@ -105,7 +121,12 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
 
                 <div className="relative flex flex-col w-full">
                     <div className="flex flex-row gap-6 items-center justify-between">
-                        <h2 className="font-semibold text-darkGrey text-lg sm:text-xl md:text-2xl xl:text-3xl">Forms</h2>
+                        <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+                            <ul className="flex flex-wrap -mb-px">
+                                <Tabs title={'Forms'} onclick={formhandler} />
+                                <Tabs title={'My submissions'} onclick={mysubmissionhandler} />
+                            </ul>
+                        </div>
                         <StyledTextField>
                             <TextField
                                 size="small"
@@ -133,44 +154,60 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
                                 <p className="mt-4 p-0">0 forms</p>
                             </div>
                         )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-3 4xl:grid-cols-4 gap-8">
-                            {forms.length !== 0 &&
-                                forms.map((form) => {
-                                    const slug = form.info.title.toLowerCase().replaceAll(' ', '-');
-                                    let shareUrl = '';
-                                    if (window && typeof window !== 'undefined') {
-                                        shareUrl = `${window.location.origin}/forms/${slug}`;
-                                    }
-                                    return (
-                                        <ActiveLink
-                                            key={form.id}
-                                            href={{
-                                                pathname: `/forms/[slug]`,
-                                                query: { slug }
-                                            }}
-                                        >
-                                            <div className="flex flex-row items-center justify-between h-full gap-8 p-5 border-[1px] border-neutral-300 hover:border-blue-500 drop-shadow-sm hover:drop-shadow-lg transition cursor-pointer bg-white rounded-[20px]">
-                                                <div className="flex flex-col justify-start h-full">
-                                                    <p className="text-xl text-grey mb-4 p-0">{form.info.title}</p>
-                                                    {form.info?.description && <p className="text-base text-softBlue m-0 p-0 w-full">{toEndDottedStr(form.info.description, 180)}</p>}
+                        {isForm && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-3 4xl:grid-cols-4 gap-8">
+                                {forms.length !== 0 &&
+                                    forms.map((form) => {
+                                        const slug = form.info.title.toLowerCase().replaceAll(' ', '-');
+                                        let shareUrl = '';
+                                        if (window && typeof window !== 'undefined') {
+                                            shareUrl = `${window.location.origin}/forms/${slug}`;
+                                        }
+                                        return (
+                                            <ActiveLink
+                                                key={form.id}
+                                                href={{
+                                                    pathname: `/forms/[slug]`,
+                                                    query: { slug }
+                                                }}
+                                            >
+                                                <div className="flex flex-row items-center justify-between h-full gap-8 p-5 border-[1px] border-neutral-300 hover:border-blue-500 drop-shadow-sm hover:drop-shadow-lg transition cursor-pointer bg-white rounded-[20px]">
+                                                    <div className="flex flex-col justify-start h-full">
+                                                        <p className="text-xl text-grey mb-4 p-0">{form.info.title}</p>
+                                                        {form.info?.description && <p className="text-base text-softBlue m-0 p-0 w-full">{toEndDottedStr(form.info.description, 180)}</p>}
+                                                    </div>
+                                                    <div
+                                                        aria-hidden
+                                                        onClick={(event) => {
+                                                            event.preventDefault();
+                                                            event.stopPropagation();
+                                                            copyToClipboard(shareUrl);
+                                                            setIsOpen(true);
+                                                        }}
+                                                        className="p-2 border-[1px] border-white hover:border-neutral-100 hover:shadow rounded-md"
+                                                    >
+                                                        <ShareIcon width={19} height={19} />
+                                                    </div>
                                                 </div>
-                                                <div
-                                                    aria-hidden
-                                                    onClick={(event) => {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        copyToClipboard(shareUrl);
-                                                        setIsOpen(true);
-                                                    }}
-                                                    className="p-2 border-[1px] border-white hover:border-neutral-100 hover:shadow rounded-md"
-                                                >
-                                                    <ShareIcon width={19} height={19} />
-                                                </div>
-                                            </div>
-                                        </ActiveLink>
-                                    );
-                                })}
-                        </div>
+                                            </ActiveLink>
+                                        );
+                                    })}
+                            </div>
+                        )}
+                        {ismysubmission && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-3 4xl:grid-cols-4 gap-8">
+                                <div className="flex flex-row items-center justify-between h-full gap-8 p-5 border-[1px] border-neutral-300 hover:border-blue-500 drop-shadow-sm hover:drop-shadow-lg transition cursor-pointer bg-white rounded-[20px]">
+                                    <div className="flex flex-col justify-start h-full">
+                                        <h3 className="text-xl text-grey mb-4 p-0">my form submission one</h3>
+                                        <div className="text-base text-softBlue m-0 p-0 w-full">
+                                            <span> Wednesday 13 july 2022</span>
+                                            <span> 09:17 pm</span>
+                                        </div>
+                                    </div>
+                                    <div aria-hidden onClick={() => {}} className="p-2 border-[1px] border-white hover:border-neutral-100 hover:shadow rounded-md"></div>
+                                </div>
+                            </div>
+                        )}
                         <MuiSnackbar isOpen={isOpen} setIsOpen={setIsOpen} message="Copied URL" severity="info" />
                     </div>
                 </div>
