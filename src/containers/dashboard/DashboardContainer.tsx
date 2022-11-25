@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { Router, useRouter } from 'next/router';
+
 import styled from '@emotion/styled';
 import { IconButton, InputAdornment } from '@mui/material';
 import TextField from '@mui/material/TextField';
@@ -46,6 +48,7 @@ interface IDashboardContainer {
 
 export default function DashboardContainer({ companyJson }: IDashboardContainer) {
     const dispatch = useDispatch();
+    const router = useRouter();
     const isForm = useAppSelector((state) => state.mySubmission.isForm);
     const ismysubmission = useAppSelector((state) => state.mySubmission.isMysubmission);
     const formhandler = () => {
@@ -196,7 +199,10 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
                         )}
                         {ismysubmission && (
                             <div className="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-3 4xl:grid-cols-4 gap-8">
-                                <div className="flex flex-row items-center justify-between h-full gap-8 p-5 border-[1px] border-neutral-300 hover:border-blue-500 drop-shadow-sm hover:drop-shadow-lg transition cursor-pointer bg-white rounded-[20px]">
+                                <div
+                                    onClick={() => router.push('/formquestions')}
+                                    className="flex flex-row items-center justify-between h-full gap-8 p-5 border-[1px] border-neutral-300 hover:border-blue-500 drop-shadow-sm hover:drop-shadow-lg transition cursor-pointer bg-white rounded-[20px]"
+                                >
                                     <div className="flex flex-col justify-start h-full">
                                         <h3 className="text-xl text-grey mb-4 p-0">my form submission one</h3>
                                         <div className="text-base text-softBlue m-0 p-0 w-full">
@@ -204,7 +210,6 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
                                             <span> 09:17 pm</span>
                                         </div>
                                     </div>
-                                    <div aria-hidden onClick={() => {}} className="p-2 border-[1px] border-white hover:border-neutral-100 hover:shadow rounded-md"></div>
                                 </div>
                             </div>
                         )}
