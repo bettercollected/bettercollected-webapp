@@ -11,21 +11,22 @@ import EmptyTray from '@app/assets/svgs/empty-tray.svg';
 import { SearchIcon } from '@app/components/icons/search';
 import { ShareIcon } from '@app/components/icons/share-icon';
 import { MODAL_VIEW, useModal } from '@app/components/modal-views/context';
-import Button from '@app/components/ui/button';
 import ButtonRenderer from '@app/components/ui/ButtonRenderer';
+import Button from '@app/components/ui/button';
 import FullScreenLoader from '@app/components/ui/fullscreen-loader';
 import Hamburger from '@app/components/ui/hamburger';
 import Image from '@app/components/ui/image';
 import ActiveLink from '@app/components/ui/links/active-link';
 import MarkdownText from '@app/components/ui/markdown-text';
 import MuiSnackbar from '@app/components/ui/mui-snackbar';
-import environments from '@app/configs/environments';
 import Tabs from '@app/components/ui/tabs';
+import environments from '@app/configs/environments';
 import ContentLayout from '@app/layouts/_content-layout';
 import { useCopyToClipboard } from '@app/lib/hooks/use-copy-to-clipboard';
 import { CompanyJsonDto } from '@app/models/dtos/customDomain';
 import { GoogleFormDto } from '@app/models/dtos/googleForm';
 import mysubmission, { mySubmissionActions } from '@app/store/counter/mysubmission';
+import { useGetAllFormsQuery } from '@app/store/form/api';
 import { useAppSelector } from '@app/store/hooks';
 import { toEndDottedStr } from '@app/utils/stringUtils';
 
@@ -65,6 +66,8 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
     const { openModal } = useModal();
 
     const [_, copyToClipboard] = useCopyToClipboard();
+
+    const { data: allForms, isLoading, isError, isSuccess, error } = useGetAllFormsQuery();
 
     let timeOutId: any;
     const handleSearch = (event: any) => {
@@ -126,8 +129,8 @@ export default function DashboardContainer({ companyJson }: IDashboardContainer)
                     <div className="flex flex-row gap-6 items-center justify-between">
                         <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
                             <ul className="flex flex-wrap -mb-px">
-                                <Tabs title={'Forms'} onclick={formhandler} />
-                                <Tabs title={'My submissions'} onclick={mysubmissionhandler} />
+                                <Tabs title={'Forms'} onclick={formhandler} true={isForm} />
+                                <Tabs title={'My submissions'} onclick={mysubmissionhandler} true={ismysubmission} />
                             </ul>
                         </div>
                         <StyledTextField>
