@@ -50,6 +50,8 @@ export default function DashboardContainer({ workspace }: IDashboardContainer) {
 
     const authStatus = useGetStatusQuery('status');
 
+    console.log('workspace', workspace);
+
     const { openModal } = useModal();
 
     const statusQuerySelect = useMemo(() => authApi.endpoints.getStatus.select('status'), []);
@@ -87,7 +89,7 @@ export default function DashboardContainer({ workspace }: IDashboardContainer) {
         <div className="relative">
             <div className="product-box">
                 <div data-aos="fade-up" className="product-image relative h-44 w-full overflow-hidden md:h-80 xl:h-[380px]">
-                    <Image src={workspace.bannerImage} priority layout="fill" objectFit="contain" objectPosition="center" alt={workspace.title} />
+                    <Image src={workspace.bannerImage} priority layout="fill" objectFit="contain" objectPosition="center" alt={workspace?.title} />
                 </div>
             </div>
             <ContentLayout className="!pt-0 relative bg-[#FBFBFB]">
