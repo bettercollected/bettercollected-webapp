@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-console.log(process.env);
-
 const runtimeCaching = require('next-pwa/cache');
 
 const { i18n } = require('./next-i18next.config');
@@ -12,6 +10,16 @@ const getHostnameFromRegex = (url) => {
     // extract hostname (will be empty string if no match is found)
     return matches ? matches[1] : '';
 };
+
+const googleUrls = process.env.GOOGLE_IMAGE_DOMAINS ? process.env.GOOGLE_IMAGE_DOMAINS.split(',') : null;
+const googleImageDomains = [];
+
+if (googleUrls && Array.isArray(googleUrls)) {
+    googleUrls.map((url) => {
+        const domain = getHostnameFromRegex(url);
+        if (domain) googleImageDomains.push(domain);
+    });
+}
 
 const withPWA = require('next-pwa')({
     dest: 'public',
@@ -32,12 +40,12 @@ const nextConfig = {
     optimizeFonts: true,
     compiler: {
         emotion: true,
-        removeConsole: process.env.NEXT_PUBLIC_NODE_ENV === 'production' ? { exclude: ['info'] } : false
+        removeConsole: false
     },
     images: {
         minimumCacheTTL: 600,
         formats: ['image/avif', 'image/webp'],
-        domains: ['s3.eu-west-1.wasabisys.com', 's3.eu-central-1.wasabisys.com', 'sireto.com']
+        domains: [...googleImageDomains, 'lh5.googleusercontent.com', 's3.eu-west-1.wasabisys.com', 's3.eu-central-1.wasabisys.com', 'sireto.com']
     },
     publicRuntimeConfig: {
         CONTACT_US_URL: process.env.CONTACT_US_URL,
@@ -48,9 +56,12 @@ const nextConfig = {
         INDIVIDUAL_FORM_URL: process.env.INDIVIDUAL_FORM_URL,
         BUSINESS_FORM_URL: process.env.BUSINESS_FORM_URL,
         ENTERPRISE_FORM_URL: process.env.ENTERPRISE_FORM_URL,
+        GOOGLE_IMAGE_DOMAINS: process.env.GOOGLE_IMAGE_DOMAINS,
+        CLIENT_HOST: process.env.CLIENT_HOST,
 
         // Custom Domain Variables
         IS_CUSTOM_DOMAIN: process.env.IS_CUSTOM_DOMAIN || false,
+        WORKSPACE_ID: process.env.WORKSPACE_ID,
         CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN,
         CUSTOM_DOMAIN_JSON: process.env.CUSTOM_DOMAIN_JSON,
         ENABLE_CHECK_MY_DATA: process.env.ENABLE_CHECK_MY_DATA || false,

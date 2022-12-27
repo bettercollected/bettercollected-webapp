@@ -8,19 +8,21 @@ import Button from '@app/components/ui/button';
 import { Dialog } from '@app/components/ui/dialog';
 import { Transition } from '@app/components/ui/transition';
 
+import LogoutView from '../logout/logout-view';
 import { MODAL_VIEW, useModal } from './context';
 
 // dynamic imports
 const LoginView = dynamic(() => import('@app/components/login/login-view'));
+const ImportFormsView = dynamic(() => import('@app/components/importforms'));
 
 function renderModalContent(view: MODAL_VIEW | string) {
     switch (view) {
-        // case 'SEARCH_VIEW':
-        //     return <SearchView />;
-        // case 'SHARE_VIEW':
-        //     return <ShareView />;
-        case MODAL_VIEW.LOGIN_VIEW:
+        case 'LOGIN_VIEW':
             return <LoginView />;
+        case 'IMPORT_FORMS_VIEW':
+            return <ImportFormsView />;
+        case 'LOGOUT_VIEW':
+            return <LogoutView />;
         default:
             return null;
     }
@@ -29,6 +31,7 @@ function renderModalContent(view: MODAL_VIEW | string) {
 export default function ModalContainer() {
     const router = useRouter();
     const { view, isOpen, closeModal } = useModal();
+
     useEffect(() => {
         // close search modal when route change
         router.events.on('routeChangeStart', closeModal);
@@ -36,6 +39,7 @@ export default function ModalContainer() {
             router.events.off('routeChangeStart', closeModal);
         };
     }, []);
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="fixed inset-0 z-50 h-full w-full overflow-y-auto overflow-x-hidden p-4 text-center sm:p-6 lg:p-8 xl:p-10 3xl:p-12" onClose={closeModal}>
@@ -44,7 +48,7 @@ export default function ModalContainer() {
                 </Transition.Child>
 
                 {/* This element is to trick the browser into centering the modal contents. */}
-                {view && view !== MODAL_VIEW.SEARCH_VIEW && (
+                {view && view !== 'SEARCH_VIEW' && (
                     <span className="inline-block h-full align-middle" aria-hidden="true">
                         &#8203;
                     </span>
@@ -52,7 +56,7 @@ export default function ModalContainer() {
 
                 {/* This element is need to fix FocusTap headless-ui warning issue */}
                 <div className="sr-only">
-                    <Button size="small" color="gray" shape="circle" onClick={() => console.log('hello')} className="opacity-50 hover:opacity-80 ">
+                    <Button size="small" color="gray" shape="circle" onClick={closeModal} className="opacity-50 hover:opacity-80 ">
                         <Close className="h-auto w-[13px]" />
                     </Button>
                 </div>

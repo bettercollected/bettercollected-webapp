@@ -19,7 +19,7 @@ const BASE_DEPLOY_PATH = process.env.BASE_DEPLOY_PATH ?? '';
 const environments = {
     // build-time configs
     BASE_DEPLOY_PATH,
-
+    CLIENT_HOST: publicRuntimeConfig.CLIENT_HOST || 'localhost:3000',
     // api host configs
     API_ENDPOINT_HOST: publicRuntimeConfig.API_ENDPOINT_HOST,
 
@@ -35,6 +35,7 @@ const environments = {
 
     // Custom Domain Variables (run-time configs)
     IS_CUSTOM_DOMAIN: (publicRuntimeConfig.IS_CUSTOM_DOMAIN && (publicRuntimeConfig.IS_CUSTOM_DOMAIN === 'true' || publicRuntimeConfig.IS_CUSTOM_DOMAIN === true)) ?? false,
+    WORKSPACE_ID: publicRuntimeConfig.WORKSPACE_ID,
     CUSTOM_DOMAIN: publicRuntimeConfig.CUSTOM_DOMAIN,
     CUSTOM_DOMAIN_JSON: publicRuntimeConfig.CUSTOM_DOMAIN_JSON,
     ENABLE_CHECK_MY_DATA: (publicRuntimeConfig.ENABLE_CHECK_MY_DATA && (publicRuntimeConfig.ENABLE_CHECK_MY_DATA === 'true' || publicRuntimeConfig.ENABLE_CHECK_MY_DATA === true)) ?? false,
