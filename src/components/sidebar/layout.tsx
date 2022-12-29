@@ -1,7 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import cn from 'classnames';
 
 import { Header } from '@app/layouts/_layout';
@@ -10,9 +8,6 @@ import { authApi } from '@app/store/auth/api';
 import { useAppSelector } from '@app/store/hooks';
 
 import { useDrawer } from '../drawer-views/context';
-import { ChevronDown } from '../icons/chevron-down';
-import { Logout } from '../icons/logout-icon';
-import { useModal } from '../modal-views/context';
 import Hamburger from '../ui/hamburger';
 import Logo from '../ui/logo';
 import SidebarExpandable from './_expandable';
@@ -20,10 +15,8 @@ import SidebarExpandable from './_expandable';
 export default function Layout(props: any) {
     const children = props.children;
     const isNavbarRequired = props.children;
-    const { openModal } = useModal();
     const { openDrawer, isOpen } = useDrawer();
     const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
 
     const screenSize = useBreakpoint();
 
@@ -76,49 +69,20 @@ export default function Layout(props: any) {
                                 {!checkIfSideBarRender() && <Hamburger isOpen={isOpen} className="!shadow-none !bg-white !text-black !flex !justify-start" onClick={handleOpenSidebar} />}
                                 <Logo />
                             </div>
-                            <div aria-label="more" id="profile-button" aria-expanded={open ? 'true' : undefined} aria-haspopup="true" aria-controls={open ? 'profile-menu' : undefined} onClick={handleClick}>
-                                <div className="flex cursor-pointer items-center mt-2">
+                            {['xs', 'sm'].indexOf(screenSize) === -1 && !!profileName[0] && (
+                                <div className="flex items-center mt-2">
                                     <div className="flex rounded-md w-full p-3 h-10 items-center justify-center mr-2 bg-blue-50">{profileName[0]?.toUpperCase()}</div>
                                     <div className="italic font-bold text-md text-gray-600 flex flex-row items-center">
                                         <p className="mr-2">{profileName}</p>
-                                        {/* <ChevronDown className="w-[10px] h-[10px]" /> */}
                                     </div>
                                 </div>
-                            </div>
-                            {/* <Menu
-                                id="profile-menu"
-                                MenuListProps={{ 'aria-labelledby': 'profile-button' }}
-                                anchorEl={anchorEl}
-                                open={open}
-                                PaperProps={{
-                                    style: {
-                                        maxHeight: '20ch',
-                                        width: '20ch'
-                                    }
-                                }}
-                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                onClose={handleClose}
-                            >
-                                <MenuItem
-                                    key="logout"
-                                    onClick={() => {
-                                        setAnchorEl(null);
-                                        openModal('LOGOUT_VIEW');
-                                    }}
-                                >
-                                    <div className="flex flex-row text-red-500">
-                                        <Logout className={'!w-5 !h-5 mr-2 '} />
-                                        <p>Logout</p>
-                                    </div>
-                                </MenuItem>
-                            </Menu> */}
+                            )}
                         </div>
                     </>
                 </Header>
             )}
             {checkIfSideBarRender() && <SidebarExpandable />}
-            <main className={cn('px-4 xl:left-24 right-0 w-full xl:w-auto absolute top-24 pt-4 sm:px-6 lg:px-8 3xl:px-10 3xl:pt-2.5')}>{children}</main>
+            <main className={cn('px-4 xl:left-24 right-0 w-full xl:w-auto absolute top-24 md:pt-4 sm:px-6 lg:px-8 3xl:px-10 3xl:pt-2.5')}>{children}</main>
         </div>
     );
 }

@@ -10,6 +10,7 @@ import { IGetWorkspaceFormQuery, IGetWorkspaceSubmissionQuery, IPatchFormSetting
 export const WORKSPACES_REDUCER_PATH = 'workspacesApi';
 
 const WORKSPACE_TAGS = 'WORKSPACE_TAG';
+const WORKSPACE_UPDATE_TAG = 'WORKSPACE_UPDATE_TAG';
 
 interface ImportFormQueryInterface {
     workspaceId: string;
@@ -22,7 +23,7 @@ interface ImportFormQueryInterface {
 
 export const workspacesApi = createApi({
     reducerPath: WORKSPACES_REDUCER_PATH,
-    tagTypes: [WORKSPACE_TAGS],
+    tagTypes: [WORKSPACE_TAGS, WORKSPACE_UPDATE_TAG],
     refetchOnMountOrArgChange: true,
     refetchOnReconnect: true,
     refetchOnFocus: true,
@@ -30,6 +31,7 @@ export const workspacesApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: environments.API_ENDPOINT_HOST,
         prepareHeaders(headers) {
+            headers.set('Access-Control-Allow-Origin', environments.API_ENDPOINT_HOST);
             return headers;
         },
         credentials: 'include'
@@ -55,19 +57,23 @@ export const workspacesApi = createApi({
             }),
             invalidatesTags: [WORKSPACE_TAGS]
         }),
-        getWorkspace: builder.query<WorkspaceDto, { workspace_id: string }>({
+        getWorkspace: builder.query<WorkspaceDto, string>({
             query: (body) => ({
-                url: `/workspaces`,
-                method: 'GET',
-                params: { workspace_id: body.workspace_id }
+                url: `/workspaces/${body}`,
+                method: 'GET'
             }),
             providesTags: [WORKSPACE_TAGS]
         }),
+        getAllMineWorkspaces: builder.query<any, void>({
+            query: () => ({
+                url: '/workspaces/mine',
+                method: 'GET'
+            })
+        }),
         getWorkspaceForms: builder.query<IGenericAPIResponse<Array<StandardFormDto>>, any>({
             query: (body) => ({
-                url: `/workspaces/${body.workspace_id}/forms`,
-                method: 'GET',
-                params: !!body.form_id ? { form_id: body.form_id } : {}
+                url: `/workspaces/${body.workspace_id}/forms${!!body.form_id ? `/${body.form_id}` : ''}`,
+                method: 'GET'
             }),
             providesTags: [WORKSPACE_TAGS]
         }),
@@ -112,6 +118,29 @@ export const workspacesApi = createApi({
                 body: request.body,
                 credentials: 'include'
             })
+        }),
+        createWorkspace: builder.mutation<any, any>({
+            query: (request) => ({
+                url: `/workspaces`,
+                method: 'POST',
+                body: request,
+                credentials: 'include',
+                headers: {
+                    'Access-control-allow-origin': environments.API_ENDPOINT_HOST
+                }
+            })
+        }),
+        patchExistingWorkspace: builder.mutation<any, any>({
+            query: (request) => ({
+                url: `/workspaces/${request.workspace_id}`,
+                method: 'PATCH',
+                body: request.body,
+                credentials: 'include',
+                headers: {
+                    'Access-control-allow-origin': environments.API_ENDPOINT_HOST
+                }
+            })
+            // providesTags: [WORKSPACE_UPDATE_TAG]
         })
     })
 });
@@ -121,6 +150,7 @@ export const {
     useLazyGetGoogleFormQuery,
     useImportFormMutation,
     useGetWorkspaceQuery,
+    useLazyGetWorkspaceQuery,
     useGetWorkspaceFormsQuery,
     useGetWorkspaceFormQuery,
     useLazyGetWorkspaceFormsQuery,
@@ -129,5 +159,9 @@ export const {
     useGetWorkspaceSubmissionQuery,
     useLazyGetWorkspaceSubmissionQuery,
     useSearchWorkspaceFormsMutation,
-    usePatchFormSettingsMutation
+    usePatchFormSettingsMutation,
+    useCreateWorkspaceMutation,
+    usePatchExistingWorkspaceMutation,
+    useGetAllMineWorkspacesQuery,
+    useLazyGetAllMineWorkspacesQuery
 } = workspacesApi;
