@@ -24,6 +24,8 @@ export default function SidebarExpandable() {
 
     useGetStatusQuery('status');
 
+    const breakpoint = useBreakpoint();
+
     const statusQuerySelect = useMemo(() => authApi.endpoints.getStatus.select('status'), []);
     const selectGetStatus = useAppSelector(statusQuerySelect);
 
@@ -34,6 +36,15 @@ export default function SidebarExpandable() {
     const FooterRenderer = ({ icon, name, profileName }: any) => {
         return (
             <div className="flex flex-col justify-center mt-2 border-t-[1.5px] border-gray-100">
+                {['xs', 'sm'].indexOf(breakpoint) !== -1 && !!profileName && (
+                    <Tooltip title={profileName} arrow>
+                        <div className="flex items-center mt-2">
+                            {!name && <div className="flex rounded-md w-full h-10 items-center justify-center bg-blue-50">{profileName[0]}</div>}
+                            {!!name && <div className="italic font-extrabold text-xs text-gray-600">{profileName}</div>}
+                        </div>
+                    </Tooltip>
+                )}
+
                 <div
                     onClick={() => openModal('LOGOUT_VIEW')}
                     className={`relative flex flex-row mt-2 py-3 px-4 ${
@@ -46,7 +57,6 @@ export default function SidebarExpandable() {
             </div>
         );
     };
-    // !bg-[#3b82f6]
 
     const className = 'top-24 hidden border-r-[1px] sm:block relative h-[calc(100%-4rem)] sm:h-[calc(100%-6rem)]';
 

@@ -1,10 +1,8 @@
 import React from 'react';
 
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import { Feed, Settings } from '@mui/icons-material';
-import { toast } from 'react-toastify';
 
 import { FormTabContent } from '@app/components/dashboard/form-overview';
 import FormSubmissionsTab from '@app/components/dashboard/form-responses';
@@ -14,10 +12,8 @@ import Layout from '@app/components/sidebar/layout';
 import ParamTab from '@app/components/ui/param-tab';
 import { TabPanel } from '@app/components/ui/tab';
 import environments from '@app/configs/environments';
-import { useBreakpoint } from '@app/lib/hooks/use-breakpoint';
 import { getGlobalServerSidePropsByWorkspaceName } from '@app/lib/serverSideProps';
 import Error from '@app/pages/_error';
-import { toEndDottedStr } from '@app/utils/stringUtils';
 
 enum FormTabs {
     FORM = 'Form',
@@ -26,12 +22,10 @@ enum FormTabs {
 }
 
 export default function FormPage(props: any) {
-    // const breakpoint = useBreakpoint();
-    console.log('Renderinf parent');
-    if (props.error) {
+    if (!props && Object.keys(props).length === 0) {
         return <Error />;
     }
-    const { formId, form, workspaceName } = props;
+    const { formId, form } = props;
 
     const tabs = [
         {
@@ -57,7 +51,7 @@ export default function FormPage(props: any) {
                 <nav className="flex mt-3 px-0 md:px-0" aria-label="Breadcrumb">
                     <ol className="inline-flex items-center space-x-1 md:space-x-3">
                         <li className="inline-flex items-center">
-                            <Link href={`/${props.workspace.workspaceName}/dashboard`}>
+                            <Link href={`/${props?.workspace?.workspaceName}/dashboard`}>
                                 <span aria-hidden className="cursor-pointer inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                                     <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
@@ -69,7 +63,7 @@ export default function FormPage(props: any) {
                         <li aria-current="page">
                             <div className="flex items-center">
                                 <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
                                 </svg>
                                 <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">{formId}</span>
                             </div>
@@ -80,7 +74,7 @@ export default function FormPage(props: any) {
             <div className="flex flex-col w-full m-auto justify-center">
                 <ParamTab tabMenu={tabs}>
                     <TabPanel className="focus:outline-none" key="form">
-                        <FormTabContent workspaceId={props?.workspace?.id ?? ''} />
+                        <FormTabContent form={form} workspaceId={props?.workspace?.id ?? ''} />
                     </TabPanel>
                     <TabPanel className="focus:outline-none" key="submissions">
                         <FormSubmissionsTab workspace={props.workspace} workspaceName={props?.workspace?.workspaceName} workspaceId={props?.workspace?.id ?? ''} formId={formId} />
@@ -117,11 +111,21 @@ export async function getServerSideProps(_context: any) {
             cookie: `${auth};${refresh}`
         }
     };
-    const { form_id, workspace_name } = _context.query;
+    const { form_id } = _context.query;
     let form = null;
     try {
         const userStatus = await fetch(`${environments.API_ENDPOINT_HOST}/auth/status`, config);
         const user = (await userStatus?.json().catch((e: any) => e))?.payload?.content ?? null;
+
+        if (!user) {
+            return {
+                redirect: {
+                    permanent: false,
+                    destination: '/'
+                }
+            };
+        }
+
         if (user?.user?.roles?.includes('FORM_CREATOR')) {
             const userWorkspaceResponse = await fetch(`${environments.API_ENDPOINT_HOST}/workspaces/mine`, config);
             const userWorkspace = (await userWorkspaceResponse?.json().catch((e: any) => e))?.payload?.content ?? null;

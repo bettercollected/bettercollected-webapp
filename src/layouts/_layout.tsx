@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import Logo from '@app/components/ui/logo';
 import { useIsMounted } from '@app/lib/hooks/use-is-mounted';
@@ -9,7 +8,6 @@ import { useWindowScroll } from '@app/lib/hooks/use-window-scroll';
 
 export function Header(props: any) {
     const windowScroll = useWindowScroll();
-    const router = useRouter();
     const isMounted = useIsMounted();
 
     return (
@@ -32,7 +30,7 @@ interface LayoutProps {
 
 export default function Layout({ children, className = '', hideSignIn }: React.PropsWithChildren<LayoutProps>) {
     return (
-        <div className="flex min-h-screen flex-col bg-white dark:bg-dark z-20">
+        <div className="!min-h-full !min-w-full bg-white dark:bg-dark z-20">
             <Header>
                 <div className="flex justify-between items-center">
                     <Logo />

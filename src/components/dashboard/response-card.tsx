@@ -4,6 +4,7 @@ import EmptyTray from '@app/assets/svgs/empty-tray.svg';
 import Image from '@app/components/ui/image';
 import ActiveLink from '@app/components/ui/links/active-link';
 import Loader from '@app/components/ui/loader';
+import environments from '@app/configs/environments';
 import { useBreakpoint } from '@app/lib/hooks/use-breakpoint';
 import { StandardFormResponseDto } from '@app/models/dtos/form';
 import { useGetWorkspaceSubmissionsQuery } from '@app/store/workspaces/api';
@@ -14,7 +15,8 @@ interface IResponseCard {
     workspaceId: string;
 }
 
-export default function ResponseCard({ workspaceId }: IResponseCard) {
+export default function ResponseCard({ workspace }: any) {
+    const workspaceId = workspace.id;
     const { isLoading, data, isError } = useGetWorkspaceSubmissionsQuery(workspaceId, { pollingInterval: 30000 });
     const breakpoint = useBreakpoint();
 
@@ -35,6 +37,8 @@ export default function ResponseCard({ workspaceId }: IResponseCard) {
 
     const submissions: Array<StandardFormResponseDto> = data?.payload?.content ?? [];
 
+    const isCustomDomain = window?.location.host !== environments.CLIENT_HOST;
+
     return (
         <>
             {submissions?.length === 0 && (
@@ -52,7 +56,7 @@ export default function ResponseCard({ workspaceId }: IResponseCard) {
                             <ActiveLink
                                 key={submission.responseId}
                                 href={{
-                                    pathname: `/submissions/[slug]`,
+                                    pathname: isCustomDomain ? `/submissions/[slug]` : `${workspace.workspaceName}/submissions/[slug]`,
                                     query: { slug }
                                 }}
                             >

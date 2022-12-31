@@ -13,6 +13,7 @@ import Image from '@app/components/ui/image';
 import ActiveLink from '@app/components/ui/links/active-link';
 import Loader from '@app/components/ui/loader';
 import MuiSnackbar from '@app/components/ui/mui-snackbar';
+import environments from '@app/configs/environments';
 import { useBreakpoint } from '@app/lib/hooks/use-breakpoint';
 import { useCopyToClipboard } from '@app/lib/hooks/use-copy-to-clipboard';
 import { StandardFormDto } from '@app/models/dtos/form';
@@ -45,11 +46,16 @@ const StyledTextField = styled.div`
     }
 `;
 
-export default function FormCard({ workspaceId }: IFormCard) {
+export default function FormCard({ workspace }: any) {
+    const workspaceId = workspace.id;
+
     const [isOpen, setIsOpen] = useState(false);
     const breakpoint = useBreakpoint();
     const [_, copyToClipboard] = useCopyToClipboard();
-    const { isLoading, data, isError } = useGetWorkspaceFormsQuery(workspaceId, { pollingInterval: 30000 });
+    const query = {
+        workspace_id: workspaceId
+    };
+    const { isLoading, data, isError } = useGetWorkspaceFormsQuery(query, { pollingInterval: 30000 });
     const [searchWorkspaceForms] = useSearchWorkspaceFormsMutation();
 
     const [pinnedForms, setPinnedForms] = useState<any>([]);
@@ -103,6 +109,8 @@ export default function FormCard({ workspaceId }: IFormCard) {
 
     const forms: Array<StandardFormDto> = data?.payload?.content ?? [];
 
+    const isCustomDomain = window?.location.host !== environments.CLIENT_HOST;
+
     const FormsCardRenderer = ({ title, formsArray }: any) => {
         if (formsArray.length === 0) return <></>;
         return (
@@ -113,13 +121,13 @@ export default function FormCard({ workspaceId }: IFormCard) {
                         const slug = form.settings.customUrl;
                         let shareUrl = '';
                         if (window && typeof window !== 'undefined') {
-                            shareUrl = `${window.location.origin}/forms/${slug}`;
+                            shareUrl = isCustomDomain ? `${window.location.origin}/forms/${slug}` : `${window.location.origin}/${workspace.workspaceName}/forms/${slug}`;
                         }
                         return (
                             <ActiveLink
                                 key={form.formId}
                                 href={{
-                                    pathname: `/forms/[slug]`,
+                                    pathname: isCustomDomain ? `/forms/[slug]` : `${workspace.workspaceName}/forms/[slug]`,
                                     query: { slug, back: true }
                                 }}
                             >
